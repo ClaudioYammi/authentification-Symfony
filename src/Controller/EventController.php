@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controller;
 
 use App\Entity\Event;
@@ -13,27 +12,21 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class EventController extends AbstractController
 {
-    /**
-     * Lister les événements
-     * @Route("/event", name="app_event")
-     */
+    #[Route('/event', name: 'app_event')]
     public function index(ManagerRegistry $doctrine): Response
     {
         // All events order by date ASC
-        $events = $doctrine->getRepository(Event::class)->findBy([], ["startAt" => "ASC"]);
+        $events = $doctrine->getRepository(Event::class)->findBy([], ['startAt' => 'ASC']);
 
         return $this->render('event/index.html.twig', [
             'events' => $events,
         ]);
     }
 
-    /**
-     * Inscrire l'utilisateur connecté à un événement 
-     * @Route("/event/subscribe/{id}", name="user_subscribe")
-     */
+    #[Route('/event/subscribe/{id}', name: 'user_subscribe')]
     public function subscribe(ManagerRegistry $doctrine, Event $event): Response
     {
-        if($this->getUser()) {
+        if ($this->getUser()) {
             $event->addUser($this->getUser());
             $manager = $doctrine->getManager();
             $manager->persist($event);
@@ -45,13 +38,10 @@ class EventController extends AbstractController
         }
     }
 
-    /**
-     * Désinscrire l'utilisateur connecté d'un événement
-     * @Route("/event/unsubscribe/{id}", name="user_unsubscribe")
-     */
+    #[Route('/event/unsubscribe/{id}', name: 'user_unsubscribe')]
     public function unsubscribe(ManagerRegistry $doctrine, Event $event): Response
     {
-        if($this->getUser()) {
+        if ($this->getUser()) {
             $event->removeUser($this->getUser());
             $manager = $doctrine->getManager();
             $manager->persist($event);
@@ -63,10 +53,7 @@ class EventController extends AbstractController
         }
     }
 
-    /**
-     * Ajouter un événement
-     * @Route("/event/add", name="event_add")
-     */
+    #[Route('/event/add', name: 'event_add')]
     public function add(Request $request, ManagerRegistry $doctrine, EntityManagerInterface $entityManager) 
     {
         $event = new Event();
@@ -74,7 +61,6 @@ class EventController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-           
             $entityManager->persist($event);
             $entityManager->flush();
 
@@ -86,14 +72,11 @@ class EventController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/event/delete/{id}", name="event_delete")
-     */
+    #[Route('/event/delete/{id}', name: 'event_delete')]
     public function delete(Event $event, Request $request, ManagerRegistry $doctrine, EntityManagerInterface $entityManager)
     {
         $entityManager->remove($event);
         $entityManager->flush();
         return $this->redirectToRoute('app_event');
     }
-
 }
